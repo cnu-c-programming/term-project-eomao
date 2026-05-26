@@ -52,6 +52,10 @@ void run_shell(const char *csv_path) {
 
     init_student_list(&list);
     loaded = load_students(csv_path, &list);
+    if (loaded < 0) {
+        clear_student_list(&list);
+        return;
+    }
 
     printf("[%s Program]\n", program_name());
     printf("Loaded %d students from %s.\n", loaded, csv_path);
@@ -86,6 +90,10 @@ void run_command_file(const char *cmd_file, const char *csv_path) {
 
     init_student_list(&list);
     loaded = load_students(csv_path, &list);
+    if (loaded < 0) {
+        clear_student_list(&list);
+        return;
+    }
 
     printf("[%s Program]\n", program_name());
     printf("Loaded %d students from %s.\n", loaded, csv_path);
