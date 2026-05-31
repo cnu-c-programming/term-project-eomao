@@ -15,12 +15,24 @@ static void trim_newline(char *line) {
     }
 }
 
+static int parse_student_line(char *line, int *id, char *name, int *score) {
+    char extra;
+
+    if (strchr(line, ',') == NULL) {
+        return 0;
+    }
+
+    if (sscanf(line, "%d,%31[^,],%d%c", id, name, score, &extra) != 3) {
+        return 0;
+    }
+
+    return 1;
+}
+
 int load_students(const char *path, StudentList *list) {
     FILE *fp;
     char line[CSV_LINE_SIZE];
     int count = 0;
-
-    (void)list;
 
     fp = fopen(path, "r");
     if (fp == NULL) {
@@ -42,10 +54,30 @@ int load_students(const char *path, StudentList *list) {
     }
 
     while (fgets(line, sizeof(line), fp) != NULL) {
+        int id;
+        int score;
+        char name[MAX_NAME_LEN + 1];
+
         trim_newline(line);
-        if (line[0] != '\0') {
-            count++;
+        if (line[0] == '\0') {
+            continue;
         }
+
+        if (!parse_student_line(line, &id, name, &score)) {
+            fprintf(stderr, "Error: invalid CSV data.\n");
+            clear_student_list(list);
+            fclose(fp);
+            return -1;
+        }
+
+        if (!add_student(list, id, name, score)) {
+            fprintf(stderr, "Error: invalid CSV data.\n");
+            clear_student_list(list);
+            fclose(fp);
+            return -1;
+        }
+
+        count++;
     }
 
     fclose(fp);

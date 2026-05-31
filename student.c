@@ -1,6 +1,7 @@
 #include "student.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 void init_student_list(StudentList *list) {
     list->head = NULL;
@@ -44,11 +45,40 @@ Student *find_student(StudentList *list, int id) {
 }
 
 int add_student(StudentList *list, int id, const char *name, int score) {
-    (void)list;
-    (void)id;
-    (void)name;
-    (void)score;
-    return 0;
+    Student *new_student;
+    Student *cur;
+
+    if (id <= 0 || score < 0 || score > 100 || name[0] == '\0') {
+        return 0;
+    }
+
+    if (find_student(list, id) != NULL) {
+        return 0;
+    }
+
+    new_student = malloc(sizeof(Student));
+    if (new_student == NULL) {
+        return 0;
+    }
+
+    new_student->id = id;
+    strncpy(new_student->name, name, MAX_NAME_LEN);
+    new_student->name[MAX_NAME_LEN] = '\0';
+    new_student->score = score;
+    new_student->next = NULL;
+
+    if (list->head == NULL) {
+        list->head = new_student;
+        return 1;
+    }
+
+    cur = list->head;
+    while (cur->next != NULL) {
+        cur = cur->next;
+    }
+    cur->next = new_student;
+
+    return 1;
 }
 
 int delete_student(StudentList *list, int id) {
