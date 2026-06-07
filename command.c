@@ -116,6 +116,63 @@ static CommandResult handle_add(StudentList *list, const char *args) {
     printf("Student added.\n");
     return COMMAND_CONTINUE;
 }
+
+static CommandResult handle_delete(StudentList *list, const char *args) {
+    int id;
+
+    if (!parse_positive_int(args, &id)) {
+        printf("Error: invalid id.\n");
+        return COMMAND_ERROR;
+    }
+
+    if (!delete_student(list, id)) {
+        printf("Error: student not found.\n");
+        return COMMAND_ERROR;
+    }
+
+    printf("Student deleted.\n");
+    return COMMAND_CONTINUE;
+}
+
+static CommandResult handle_update(StudentList *list, const char *args) {
+    char id_text[32];
+    char score_text[32];
+    char extra[32];
+    int id;
+    int score;
+    int count;
+
+    count = sscanf(args, "%31s %31s %31s", id_text, score_text, extra);
+    if (count < 2) {
+        printf("Error: missing argument.\n");
+        return COMMAND_ERROR;
+    }
+    if (count > 2) {
+        printf("Error: invalid argument.\n");
+        return COMMAND_ERROR;
+    }
+
+    if (!parse_positive_int(id_text, &id)) {
+        printf("Error: invalid id.\n");
+        return COMMAND_ERROR;
+    }
+    if (!parse_score(score_text, &score)) {
+        printf("Error: invalid score.\n");
+        return COMMAND_ERROR;
+    }
+    if (find_student(list, id) == NULL) {
+        printf("Error: student not found.\n");
+        return COMMAND_ERROR;
+    }
+
+    if (!update_student(list, id, score)) {
+        printf("Error: cannot update student.\n");
+        return COMMAND_ERROR;
+    }
+
+    printf("Student updated.\n");
+    return COMMAND_CONTINUE;
+}
 #endif
 
 CommandResult execute_command(StudentList *list, const char *csv_path, const char *line) {
@@ -158,6 +215,22 @@ CommandResult execute_command(StudentList *list, const char *csv_path, const cha
             return COMMAND_ERROR;
         }
         return handle_add(list, args);
+    }
+
+    if (strcmp(command, "delete") == 0) {
+        if (count < 2) {
+            printf("Error: missing id.\n");
+            return COMMAND_ERROR;
+        }
+        return handle_delete(list, args);
+    }
+
+    if (strcmp(command, "update") == 0) {
+        if (count < 2) {
+            printf("Error: missing argument.\n");
+            return COMMAND_ERROR;
+        }
+        return handle_update(list, args);
     }
 #endif
 

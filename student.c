@@ -82,16 +82,40 @@ int add_student(StudentList *list, int id, const char *name, int score) {
 }
 
 int delete_student(StudentList *list, int id) {
-    (void)list;
-    (void)id;
+    Student *cur = list->head;
+    Student *prev = NULL;
+
+    while (cur != NULL) {
+        if (cur->id == id) {
+            if (prev == NULL) {
+                list->head = cur->next;
+            } else {
+                prev->next = cur->next;
+            }
+            free(cur);
+            return 1;
+        }
+        prev = cur;
+        cur = cur->next;
+    }
+
     return 0;
 }
 
 int update_student(StudentList *list, int id, int score) {
-    (void)list;
-    (void)id;
-    (void)score;
-    return 0;
+    Student *student;
+
+    if (score < 0 || score > 100) {
+        return 0;
+    }
+
+    student = find_student(list, id);
+    if (student == NULL) {
+        return 0;
+    }
+
+    student->score = score;
+    return 1;
 }
 
 void sort_students_by_name(StudentList *list) {
