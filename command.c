@@ -1,4 +1,5 @@
 #include "command.h"
+#include "file_io.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,7 +72,32 @@ static CommandResult handle_find(StudentList *list, const char *args) {
     return COMMAND_CONTINUE;
 }
 
+static CommandResult handle_reload(StudentList *list, const char *csv_path) {
+    int loaded;
+
+    clear_student_list(list);
+    loaded = load_students(csv_path, list);
+    if (loaded < 0) {
+        return COMMAND_ERROR;
+    }
+
+    printf("Reloaded %d students from %s.\n", loaded, csv_path);
+    return COMMAND_CONTINUE;
+}
+
 #ifdef ADMIN_MODE
+static CommandResult handle_save(StudentList *list, const char *csv_path) {
+    int saved;
+
+    saved = save_students(csv_path, list);
+    if (saved < 0) {
+        return COMMAND_ERROR;
+    }
+
+    printf("Saved %d students to %s.\n", saved, csv_path);
+    return COMMAND_CONTINUE;
+}
+
 static CommandResult handle_add(StudentList *list, const char *args) {
     char id_text[32];
     char name[MAX_NAME_LEN + 1];
@@ -180,8 +206,6 @@ CommandResult execute_command(StudentList *list, const char *csv_path, const cha
     char args[224];
     int count;
 
-    (void)csv_path;
-
     if (line[0] == '\0') {
         return COMMAND_CONTINUE;
     }
@@ -208,7 +232,15 @@ CommandResult execute_command(StudentList *list, const char *csv_path, const cha
         return handle_find(list, args);
     }
 
+    if (strcmp(command, "reload") == 0) {
+        return handle_reload(list, csv_path);
+    }
+
 #ifdef ADMIN_MODE
+    if (strcmp(command, "save") == 0) {
+        return handle_save(list, csv_path);
+    }
+
     if (strcmp(command, "add") == 0) {
         if (count < 2) {
             printf("Error: missing argument.\n");

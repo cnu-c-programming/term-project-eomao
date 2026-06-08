@@ -85,7 +85,25 @@ int load_students(const char *path, StudentList *list) {
 }
 
 int save_students(const char *path, const StudentList *list) {
-    (void)path;
-    (void)list;
-    return 0;
+    FILE *fp;
+    const Student *cur;
+    int count = 0;
+
+    fp = fopen(path, "w");
+    if (fp == NULL) {
+        fprintf(stderr, "Error: cannot write CSV file.\n");
+        return -1;
+    }
+
+    fprintf(fp, "%s\n", CSV_HEADER);
+
+    cur = list->head;
+    while (cur != NULL) {
+        fprintf(fp, "%d,%s,%d\n", cur->id, cur->name, cur->score);
+        count++;
+        cur = cur->next;
+    }
+
+    fclose(fp);
+    return count;
 }
