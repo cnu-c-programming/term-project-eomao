@@ -72,6 +72,64 @@ static CommandResult handle_find(StudentList *list, const char *args) {
     return COMMAND_CONTINUE;
 }
 
+
+static CommandResult handle_stats(StudentList *list) {
+    Student *cur = list->head;
+    int count = 0;
+    int sum = 0;
+    int max = 0;
+    int min = 0;
+
+    if (cur == NULL) {
+        printf("No student data available.\n");
+        return COMMAND_CONTINUE;
+    }
+
+    max = cur->score;
+    min = cur->score;
+
+    while (cur != NULL) {
+        if (cur->score > max) {
+            max = cur->score;
+        }
+        if (cur->score < min) {
+            min = cur->score;
+        }
+        sum += cur->score;
+        count++;
+        cur = cur->next;
+    }
+
+    printf("Count: %d\n", count);
+    printf("Average: %.1f\n", (double)sum / count);
+    printf("Max: %d\n", max);
+    printf("Min: %d\n", min);
+    return COMMAND_CONTINUE;
+}
+
+static CommandResult handle_help(void) {
+    printf("Commands:\n");
+#ifdef ADMIN_MODE
+    printf("save\n");
+    printf("reload\n");
+    printf("add <id> <name> <score>\n");
+    printf("delete <id>\n");
+    printf("update <id> <score>\n");
+#endif
+    printf("find <id>\n");
+    printf("list\n");
+    printf("stats\n");
+    printf("help\n");
+    printf("clear\n");
+    printf("exit\n");
+    return COMMAND_CONTINUE;
+}
+
+static CommandResult handle_clear(void) {
+    printf("\033[2J\033[H");
+    return COMMAND_CONTINUE;
+}
+
 static CommandResult handle_reload(StudentList *list, const char *csv_path) {
     int loaded;
 
@@ -230,6 +288,18 @@ CommandResult execute_command(StudentList *list, const char *csv_path, const cha
             return COMMAND_ERROR;
         }
         return handle_find(list, args);
+    }
+
+    if (strcmp(command, "stats") == 0) {
+        return handle_stats(list);
+    }
+
+    if (strcmp(command, "help") == 0) {
+        return handle_help();
+    }
+
+    if (strcmp(command, "clear") == 0) {
+        return handle_clear();
     }
 
     if (strcmp(command, "reload") == 0) {
