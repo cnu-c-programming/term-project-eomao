@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,6 +46,23 @@ static void trim_newline(char *line) {
     }
 }
 
+static char *trim_spaces(char *line) {
+    char *start = line;
+    char *end;
+
+    while (isspace((unsigned char)*start)) {
+        start++;
+    }
+
+    end = start + strlen(start);
+    while (end > start && isspace((unsigned char)end[-1])) {
+        end--;
+    }
+    *end = '\0';
+
+    return start;
+}
+
 void run_shell(const char *csv_path) {
     StudentList list;
     char line[LINE_SIZE];
@@ -70,8 +88,11 @@ void run_shell(const char *csv_path) {
             break;
         }
 
+        char *command_line;
+
         trim_newline(line);
-        result = execute_command(&list, csv_path, line);
+        command_line = trim_spaces(line);
+        result = execute_command(&list, csv_path, command_line);
 
         if (result == COMMAND_EXIT) {
             break;
@@ -107,16 +128,18 @@ void run_command_file(const char *cmd_file, const char *csv_path) {
 
     while (fgets(line, sizeof(line), fp) != NULL) {
         CommandResult result;
+        char *command_line;
 
         line_no++;
         trim_newline(line);
+        command_line = trim_spaces(line);
 
-        if (line[0] == '\0' || line[0] == '#') {
+        if (command_line[0] == '\0' || command_line[0] == '#') {
             continue;
         }
 
-        printf("[command file:%d] %s\n", line_no, line);
-        result = execute_command(&list, csv_path, line);
+        printf("[command file:%d] %s\n", line_no, command_line);
+        result = execute_command(&list, csv_path, command_line);
 
         if (result == COMMAND_EXIT) {
             break;
