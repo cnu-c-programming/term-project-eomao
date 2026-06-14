@@ -119,9 +119,69 @@ int update_student(StudentList *list, int id, int score) {
 }
 
 void sort_students_by_name(StudentList *list) {
-    (void)list;
+    int swapped;
+
+    if (list->head == NULL) {
+        return;
+    }
+
+    do {
+        Student *cur = list->head;
+        swapped = 0;
+
+        while (cur->next != NULL) {
+            if (strcmp(cur->name, cur->next->name) > 0) {
+                int temp_id = cur->id;
+                int temp_score = cur->score;
+                char temp_name[MAX_NAME_LEN + 1];
+
+                strcpy(temp_name, cur->name);
+
+                cur->id = cur->next->id;
+                strcpy(cur->name, cur->next->name);
+                cur->score = cur->next->score;
+
+                cur->next->id = temp_id;
+                strcpy(cur->next->name, temp_name);
+                cur->next->score = temp_score;
+
+                swapped = 1;
+            }
+            cur = cur->next;
+        }
+    } while (swapped);
 }
 
 void sort_students_by_score(StudentList *list) {
-    (void)list;
+    int swapped;
+
+    if (list->head == NULL) {
+        return;
+    }
+
+    do {
+        Student *cur = list->head;
+        swapped = 0;
+
+        while (cur->next != NULL) {
+            if (cur->score > cur->next->score) {
+                int temp_id = cur->id;
+                int temp_score = cur->score;
+                char temp_name[MAX_NAME_LEN + 1];
+
+                strcpy(temp_name, cur->name);
+
+                cur->id = cur->next->id;
+                strcpy(cur->name, cur->next->name);
+                cur->score = cur->next->score;
+
+                cur->next->id = temp_id;
+                strcpy(cur->next->name, temp_name);
+                cur->next->score = temp_score;
+
+                swapped = 1;
+            }
+            cur = cur->next;
+        }
+    } while (swapped);
 }

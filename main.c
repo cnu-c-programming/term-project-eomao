@@ -106,7 +106,7 @@ void run_command_file(const char *cmd_file, const char *csv_path) {
     StudentList list;
     FILE *fp;
     char line[LINE_SIZE];
-    int line_no = 0;
+    int command_no = 0;
     int loaded;
 
     init_student_list(&list);
@@ -130,7 +130,6 @@ void run_command_file(const char *cmd_file, const char *csv_path) {
         CommandResult result;
         char *command_line;
 
-        line_no++;
         trim_newline(line);
         command_line = trim_spaces(line);
 
@@ -138,14 +137,15 @@ void run_command_file(const char *cmd_file, const char *csv_path) {
             continue;
         }
 
-        printf("[command file:%d] %s\n", line_no, command_line);
+        command_no++;
+        printf("[command file:%d] %s\n", command_no, command_line);
         result = execute_command(&list, csv_path, command_line);
 
         if (result == COMMAND_EXIT) {
             break;
         }
         if (result == COMMAND_ERROR) {
-            printf("Skipped line %d.\n", line_no);
+            printf("Skipped line %d.\n", command_no);
         }
     }
 

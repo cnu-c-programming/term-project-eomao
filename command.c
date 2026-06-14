@@ -119,6 +119,8 @@ static CommandResult handle_help(void) {
     printf("find <id>\n");
     printf("list\n");
     printf("stats\n");
+    printf("sort name\n");
+    printf("sort score\n");
     printf("help\n");
     printf("clear\n");
     printf("exit\n");
@@ -128,6 +130,23 @@ static CommandResult handle_help(void) {
 static CommandResult handle_clear(void) {
     printf("\033[2J\033[H");
     return COMMAND_CONTINUE;
+}
+
+static CommandResult handle_sort(StudentList *list, const char *args) {
+    if (strcmp(args, "name") == 0) {
+        sort_students_by_name(list);
+        printf("sorted by name\n");
+        return COMMAND_CONTINUE;
+    }
+
+    if (strcmp(args, "score") == 0) {
+        sort_students_by_score(list);
+        printf("sorted by score\n");
+        return COMMAND_CONTINUE;
+    }
+
+    printf("Error: invalid sort key.\n");
+    return COMMAND_ERROR;
 }
 
 static CommandResult handle_reload(StudentList *list, const char *csv_path) {
@@ -300,6 +319,14 @@ CommandResult execute_command(StudentList *list, const char *csv_path, const cha
 
     if (strcmp(command, "clear") == 0) {
         return handle_clear();
+    }
+
+    if (strcmp(command, "sort") == 0) {
+        if (count < 2) {
+            printf("Error: missing sort key.\n");
+            return COMMAND_ERROR;
+        }
+        return handle_sort(list, args);
     }
 
     if (strcmp(command, "reload") == 0) {

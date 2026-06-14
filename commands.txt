@@ -1,0 +1,8 @@
+# sample command file
+list
+add 101 Sample 88
+find 101
+sort score
+stats
+save
+exit
